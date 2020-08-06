@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-from pygame import midi
 from utils import pp
 from time import sleep
+from collections import namedtuple
+
+# Keeps PyGame from opening it's big dumb mouth.
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+from pygame import midi
 
 def device_discovery():
     dev_count = midi.get_count()
@@ -13,6 +16,8 @@ def device_discovery():
             if device[1] == b'WORLDE easy control' and device[2]:
                 return ID
 
+
+
 def read_device(d_id):
     handle = midi.Input(d_id)
     poll = handle.poll
@@ -21,18 +26,23 @@ def read_device(d_id):
     while(True):
         events = poll()
         if events:
-            stuff = read(1024)
-            pp(stuff)
+            message = read(1024)
+            if message[0][0][0] == 176:
+                message = message[0][0]
+                message = (message[1],message[2])
 
+            # This covers the weird proprietary/special 'BANK' key.
+            else:
+                message = (0, message[-1][0][1])
+
+            # Clear as mud
+            print('[{}]'.format('|'*int(( int(message[1])/2 ))))
 
 def main():
     midi.init()
     d_id = device_discovery()
 
-    try:
-        read_device(d_id)
-    except:
-        pass
+    read_device(d_id)
 
 if __name__ == '__main__':
     main()
