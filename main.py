@@ -36,7 +36,8 @@ def read_device(d_id):
                 message = (0, message[-1][0][1])
 
             # Clear as mud
-            print('[{}]'.format('|'*int(( int(message[1])/2 ))))
+            print('{} @ {}% [{}]'.format(message[0], int((message[1]+1)/127*100),'#'*message[1]))
+
 
 def main():
     midi.init()
